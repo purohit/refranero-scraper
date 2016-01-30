@@ -1,0 +1,5 @@
+This program craws the fantastic Spanish-language Refranero Multingüe maintained by the Centro Virtual Cervantes: http://cvc.cervantes.es/lengua/refranero/Default.aspx
+
+It crawls all pages and outputs a list of Spanish idioms with their Spanish definition, frequency of use, and English idiomatic equivalent, if possible.
+
+Because the center reserves all rights (Reservados todos los derechos), you likely can only use the data for non-commercial consumption.
