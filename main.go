@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
@@ -16,12 +17,27 @@ var (
 	readSlugs  bool
 )
 
-// Idioms start only with the below letters (http://cvc.cervantes.es/lengua/refranero/listado.aspx)
-const letters = "ABCDEFGHIJLMNOPQRSTUVYZ"
+type refran struct {
+	idiom      string
+	usage      string
+	definition string
+}
 
-const alphaPageURL = "http://cvc.cervantes.es/lengua/refranero/listado.aspx?letra="
+const (
+	// Idioms start only with the below letters (http://cvc.cervantes.es/lengua/refranero/listado.aspx)
+	letters = "ABCDEFGHIJLMNOPQRSTUVYZ"
 
-const networkConns = 10
+	baseURL      = "http://cvc.cervantes.es/lengua/refranero"
+	alphaPageURL = "http://cvc.cervantes.es/lengua/refranero/listado.aspx?letra="
+
+	networkConns = 10
+
+	sectionUsage      = "Marcador de uso:"
+	sectionIdiom      = "Enunciado:"
+	sectionDefinition = "Significado:"
+
+	commonlyUsed = "Muy usado"
+)
 
 func main() {
 	parseFlags()
@@ -43,13 +59,23 @@ func parseFlags() {
 
 func inSlugs() {
 	var done sync.WaitGroup
+	output := make(chan refran, 0)
 	jobs := make(chan string, 0)
 	scanner := bufio.NewScanner(os.Stdin)
 	for i := 0; i < networkConns; i++ {
 		done.Add(1)
 		go func() {
 			for j := range jobs {
-				fmt.Println(j)
+				doc, err := goquery.NewDocument(fmt.Sprintf("%s/%s", baseURL, j))
+				if err != nil {
+					log.Fatal(err)
+				}
+				sel := doc.Find("div.tabbertab").First()
+				output <- refran{
+					idiom:      getSectionText(sel, sectionIdiom),
+					usage:      getSectionText(sel, sectionUsage),
+					definition: getSectionText(sel, sectionDefinition),
+				}
 			}
 			defer done.Done()
 		}()
@@ -58,7 +84,23 @@ func inSlugs() {
 		jobs <- scanner.Text()
 	}
 	close(jobs)
-	done.Wait()
+	go func() {
+		done.Wait()
+		close(output)
+	}()
+	fmt.Printf("Refran\tSignificado\n")
+	for o := range output {
+		if o.usage != commonlyUsed {
+			continue
+		}
+		fmt.Printf("%s\t%s\n", o.idiom, o.definition)
+	}
+}
+
+func getSectionText(sel *goquery.Selection, section string) string {
+	child := sel.Find(fmt.Sprintf("p > strong:contains(\"%s\")", section))
+	text := strings.TrimSpace(strings.TrimPrefix(child.Parent().Text(), section))
+	return text
 }
 
 func outSlugs() {
