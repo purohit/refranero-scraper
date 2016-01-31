@@ -37,6 +37,8 @@ const (
 	sectionUsage      = "Marcador de uso:"
 	sectionIdiom      = "Enunciado:"
 	sectionDefinition = "Significado:"
+
+	usageComment = "Comentario al marcador de uso"
 )
 
 func main() {
@@ -76,6 +78,8 @@ func inSlugs() {
 				sel := doc.Find("div.tabbertab").First()
 				r.idiom = getSectionText(sel, sectionIdiom)
 				r.usage = getSectionText(sel, sectionUsage)
+				usageParts := strings.Split(r.usage, usageComment)
+				r.usage = usageParts[0] // Remove any comments about usage
 				r.definition = getSectionText(sel, sectionDefinition)
 				output <- r
 			}
