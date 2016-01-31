@@ -1,6 +1,6 @@
-This program crawls the fantastic Spanish-language Refranero Multingüe maintained by the Centro Virtual Cervantes: http://cvc.cervantes.es/lengua/refranero/Default.aspx. Because the center reserves all rights (Reservados todos los derechos), you likely can only use the data for non-commercial consumption.
+This program crawls Spanish idioms from the Refranero Multingüe, maintained by the Centro Virtual Cervantes: http://cvc.cervantes.es/lengua/refranero/Default.aspx. The center reserves all rights (reservados todos los derechos), so you likely can only use the data non-commercially.
 
-It outputs a list of Spanish idioms with their Spanish definition. It only prints idioms that are heavily used today ("Muy usado").
+It outputs only those idioms with Spanish definitions, which are heavily used today ("Muy usado").
 
 Usage:
 
@@ -8,7 +8,7 @@ Usage:
 
     refranero-scraper -print-slugs > slugs.txt
 
-2. Parse all links and print out the most common ones with definitions (may take a while, about ~2000 pages to parse):
+2. Parse link slugs, and print out the idioms and definitions. It could take a while to parse these ~2000 pages.
 
     < slugs.txt | refranero-scraper -read-slugs > idioms_and_definitions.txt
 
