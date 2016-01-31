@@ -39,6 +39,8 @@ const (
 	sectionDefinition = "Significado:"
 
 	usageComment = "Comentario al marcador de uso"
+
+	missingMarker = ""
 )
 
 func main() {
@@ -102,13 +104,29 @@ func inSlugs() {
 			fmt.Printf("ERROR: %s\n", r.err)
 			continue
 		}
+		if r.isEmpty() {
+			continue
+		}
 		fmt.Printf("%s\t%s\t%s\n", r.idiom, r.definition, r.usage)
 	}
 }
 
+func (r refran) isEmpty() bool {
+	return r.idiom == missingMarker && r.definition == missingMarker && r.usage == missingMarker
+}
+
 func getSectionText(sel *goquery.Selection, section string) string {
-	child := sel.Find(fmt.Sprintf("p > strong:contains(\"%s\")", section))
-	text := strings.TrimPrefix(child.Parent().Text(), section)
+	foundIdx := -1
+	headers := sel.Find("p > strong").Each(func(i int, s *goquery.Selection) {
+		if strings.TrimSpace(s.Text()) == section {
+			foundIdx = i
+		}
+	})
+	if foundIdx == -1 {
+		return missingMarker
+	}
+	parent := headers.Eq(foundIdx).Parent()
+	text := strings.TrimPrefix(parent.Text(), section)
 	text = strings.Replace(text, "\n", " ", -1)
 	text = strings.TrimSpace(text)
 	return text
@@ -125,7 +143,6 @@ func outSlugs() {
 			if err != nil {
 				log.Fatal(err)
 			}
-
 			doc.Find("ol#lista_az > li > a").Each(func(i int, s *goquery.Selection) {
 				link, ok := s.Attr("href")
 				if !ok {
