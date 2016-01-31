@@ -95,7 +95,7 @@ func inSlugs() {
 	fmt.Printf("Refran\tSignificado\tUso\n")
 	for r := range output {
 		if r.err != nil {
-			fmt.Printf("ERROR: %s\n")
+			fmt.Printf("ERROR: %s\n", r.err)
 			continue
 		}
 		fmt.Printf("%s\t%s\t%s\n", r.idiom, r.definition, r.usage)
