@@ -108,7 +108,9 @@ func inSlugs() {
 
 func getSectionText(sel *goquery.Selection, section string) string {
 	child := sel.Find(fmt.Sprintf("p > strong:contains(\"%s\")", section))
-	text := strings.TrimSpace(strings.TrimPrefix(child.Parent().Text(), section))
+	text := strings.TrimPrefix(child.Parent().Text(), section)
+	text = strings.Replace(text, "\n", " ", -1)
+	text = strings.TrimSpace(text)
 	return text
 }
 
