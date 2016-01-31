@@ -1,6 +1,6 @@
 This program crawls Spanish idioms from the Refranero Multingüe, maintained by the Centro Virtual Cervantes: http://cvc.cervantes.es/lengua/refranero/Default.aspx. The center reserves all rights (reservados todos los derechos), so you likely can only use the data non-commercially.
 
-It outputs only those idioms with Spanish definitions, which are heavily used today ("Muy usado").
+It outputs all idioms with Spanish definitions and their usage. If you just want the output, see the .tsv file included here.
 
 Usage:
 

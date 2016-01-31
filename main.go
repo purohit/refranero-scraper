@@ -21,6 +21,8 @@ type refran struct {
 	idiom      string
 	usage      string
 	definition string
+
+	err error
 }
 
 const (
@@ -35,8 +37,6 @@ const (
 	sectionUsage      = "Marcador de uso:"
 	sectionIdiom      = "Enunciado:"
 	sectionDefinition = "Significado:"
-
-	commonlyUsed = "Muy usado"
 )
 
 func main() {
@@ -66,34 +66,39 @@ func inSlugs() {
 		done.Add(1)
 		go func() {
 			for j := range jobs {
+				r := refran{}
 				doc, err := goquery.NewDocument(fmt.Sprintf("%s/%s", baseURL, j))
 				if err != nil {
-					log.Fatal(err)
+					r.err = err
+					output <- r
+					continue
 				}
 				sel := doc.Find("div.tabbertab").First()
-				output <- refran{
-					idiom:      getSectionText(sel, sectionIdiom),
-					usage:      getSectionText(sel, sectionUsage),
-					definition: getSectionText(sel, sectionDefinition),
-				}
+				r.idiom = getSectionText(sel, sectionIdiom)
+				r.usage = getSectionText(sel, sectionUsage)
+				r.definition = getSectionText(sel, sectionDefinition)
+				output <- r
 			}
 			defer done.Done()
 		}()
 	}
-	for scanner.Scan() {
-		jobs <- scanner.Text()
-	}
-	close(jobs)
+	go func() {
+		for scanner.Scan() {
+			jobs <- scanner.Text()
+		}
+		close(jobs)
+	}()
 	go func() {
 		done.Wait()
 		close(output)
 	}()
-	fmt.Printf("Refran\tSignificado\n")
-	for o := range output {
-		if o.usage != commonlyUsed {
+	fmt.Printf("Refran\tSignificado\tUso\n")
+	for r := range output {
+		if r.err != nil {
+			fmt.Printf("ERROR: %s\n")
 			continue
 		}
-		fmt.Printf("%s\t%s\n", o.idiom, o.definition)
+		fmt.Printf("%s\t%s\t%s\n", r.idiom, r.definition, r.usage)
 	}
 }
 
