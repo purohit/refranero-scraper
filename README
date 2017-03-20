@@ -3,12 +3,19 @@ This program crawls Spanish idioms from the Refranero Multingüe, maintained by 
 It outputs all idioms with Spanish definitions and their usage. If you just want the output, see the idioms.tsv file included here.
 
 Usage:
+0. Install github.com/PuerkitoBio/goquery
 
-1. Get link slugs for all idioms:
+    go get github.com/PuerkitoBio/goquery
+   
+1. Build refranero
+    
+    go build
+   
+2. Get link slugs for all idioms:
 
     refranero-scraper -print-slugs > slugs.txt
 
-2. Parse link slugs, and print out the idioms and definitions. It could take a while to parse these ~2000 pages.
+3. Parse link slugs, and print out the idioms and definitions. It could take a while to parse these ~2000 pages.
 
     < slugs.txt | refranero-scraper -read-slugs > idioms_and_definitions.txt
 
